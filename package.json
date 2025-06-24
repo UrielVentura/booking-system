@@ -1,0 +1,50 @@
+{
+  "name": "booking-system",
+  "version": "1.0.0",
+  "description": "Full-stack booking system with Google Calendar integration",
+  "private": true,
+  "scripts": {
+    "install:all": "npm run install:backend && npm run install:frontend",
+    "install:backend": "cd backend && npm install",
+    "install:frontend": "cd frontend && npm install",
+    "db:up": "docker-compose up -d",
+    "db:down": "docker-compose down",
+    "db:logs": "docker-compose logs -f",
+    "db:reset": "docker-compose down -v && docker-compose up -d",
+    "backend": "cd backend && dotenv -e ../.env -- npm run start:dev",
+    "frontend": "cd frontend && npm run dev",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "prisma:migrate": "cd backend && dotenv -e ../.env -- npx prisma migrate dev",
+    "prisma:migrate:create": "cd backend && dotenv -e ../.env -- npx prisma migrate dev --name",
+    "prisma:studio": "cd backend && dotenv -e ../.env -- npx prisma studio",
+    "prisma:generate": "cd backend && dotenv -e ../.env -- npx prisma generate",
+    "prisma:reset": "cd backend && dotenv -e ../.env -- npx prisma migrate reset --force",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:backend": "cd backend && npm test",
+    "test:frontend": "cd frontend && npm test",
+    "lint": "npm run lint:backend && npm run lint:frontend",
+    "lint:backend": "cd backend && npm run lint",
+    "lint:frontend": "cd frontend && npm run lint",
+    "setup": "npm run install:all && npm run db:up && sleep 5 && npm run prisma:migrate",
+    "setup:first": "cp .env.example .env && cd frontend && cp .env.local.example .env.local && cd .. && echo '⚠️  Please configure your .env files before running npm run setup'"
+  },
+  "keywords": [
+    "booking",
+    "calendar",
+    "nestjs",
+    "nextjs",
+    "postgresql",
+    "auth0",
+    "docker"
+  ],
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^8.0.0"
+  }
+}

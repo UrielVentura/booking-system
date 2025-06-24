@@ -2,12 +2,17 @@ FROM node:18-alpine AS development
 
 WORKDIR /app
 
+# Copy package files
 COPY package*.json ./
-RUN npm ci
 
+# Install ALL dependencies (including devDependencies)
+RUN npm install
+
+# Copy source code
 COPY . .
 
-RUN npm run build
+# Generate Prisma client
+RUN npx prisma generate
 
 EXPOSE 3001
 
