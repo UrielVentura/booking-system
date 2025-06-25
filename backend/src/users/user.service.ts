@@ -23,6 +23,10 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async findOrCreate(data: CreateUserDto): Promise<User> {
+    if (!data.email) {
+      throw new Error('Email is required');
+    }
+
     const existingUser = await this.prisma.user.findUnique({
       where: { auth0Id: data.auth0Id },
     });
@@ -34,6 +38,7 @@ export class UsersService {
         data: {
           name: data.name || existingUser.name,
           picture: data.picture || existingUser.picture,
+          email: data.email || existingUser.email,
         },
       });
     }
@@ -42,7 +47,7 @@ export class UsersService {
       data: {
         auth0Id: data.auth0Id,
         email: data.email,
-        name: data.name,
+        name: data.name || 'User',
         picture: data.picture,
       },
     });

@@ -1,103 +1,162 @@
-import Image from "next/image";
+'use client';
+
+import { useUser } from '@auth0/nextjs-auth0/client';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import {
+  Box,
+  Button,
+  Container,
+  Grid,
+  Typography,
+  Card,
+  CardContent,
+  CircularProgress,
+} from '@mui/material';
+import {
+  CalendarMonth as CalendarIcon,
+  Security as ShieldIcon,
+  AccessTime as ClockIcon,
+  Bolt as ZapIcon,
+} from '@mui/icons-material';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const { user, isLoading } = useUser();
+  const router = useRouter();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  useEffect(() => {
+    if (user && !isLoading) {
+      router.push('/dashboard');
+    }
+  }, [user, isLoading, router]);
+
+  if (isLoading) {
+    return (
+      <Box
+        display='flex'
+        justifyContent='center'
+        alignItems='center'
+        minHeight='100vh'
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  return (
+    <Box
+      sx={{
+        minHeight: '100vh',
+        background: 'linear-gradient(to bottom right, #e3f2fd, #e8eaf6)',
+      }}
+    >
+      <Container maxWidth='lg' sx={{ py: 8 }}>
+        <Box
+          display='flex'
+          justifyContent='space-between'
+          alignItems='center'
+          mb={8}
+        >
+          <Typography variant='h5' fontWeight='bold'>
+            Booking System
+          </Typography>
+          <Button
+            variant='contained'
+            color='primary'
+            size='large'
+            href='/api/auth/login'
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+            Sign In with Google
+          </Button>
+        </Box>
+
+        <Box textAlign='center' mb={8}>
+          <Typography variant='h2' fontWeight='bold' gutterBottom>
+            Smart Scheduling,{' '}
+            <Box component='span' color='primary.main'>
+              Simplified
+            </Box>
+          </Typography>
+          <Typography
+            variant='h6'
+            color='text.secondary'
+            maxWidth='md'
+            mx='auto'
+          >
+            Book appointments seamlessly with Google Calendar integration. No
+            double bookings, no conflicts, just smooth scheduling.
+          </Typography>
+        </Box>
+
+        <Grid container spacing={4} mb={8}>
+          <Grid item xs={12} sm={6} md={3}>
+            <FeatureCard
+              icon={<CalendarIcon sx={{ fontSize: 40 }} />}
+              title='Google Calendar Sync'
+              description='Automatically sync with your existing calendar'
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <FeatureCard
+              icon={<ShieldIcon sx={{ fontSize: 40 }} />}
+              title='Conflict Prevention'
+              description='Never double-book with smart conflict detection'
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <FeatureCard
+              icon={<ClockIcon sx={{ fontSize: 40 }} />}
+              title='Real-time Updates'
+              description='Instant updates across all your devices'
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <FeatureCard
+              icon={<ZapIcon sx={{ fontSize: 40 }} />}
+              title='Fast & Intuitive'
+              description='Book appointments in seconds, not minutes'
+            />
+          </Grid>
+        </Grid>
+
+        <Box textAlign='center'>
+          <Button
+            variant='contained'
+            color='primary'
+            size='large'
+            href='/api/auth/login'
+            sx={{ py: 2, px: 4, fontSize: '1.1rem' }}
           >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+            Get Started Free →
+          </Button>
+        </Box>
+      </Container>
+    </Box>
+  );
+}
+
+function FeatureCard({
+  icon,
+  title,
+  description,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
+  return (
+    <Card sx={{ height: '100%', textAlign: 'center' }}>
+      <CardContent>
+        <Box color='primary.main' mb={2}>
+          {icon}
+        </Box>
+        <Typography variant='h6' gutterBottom fontWeight='bold'>
+          {title}
+        </Typography>
+        <Typography variant='body2' color='text.secondary'>
+          {description}
+        </Typography>
+      </CardContent>
+    </Card>
   );
 }

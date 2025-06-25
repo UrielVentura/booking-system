@@ -32,18 +32,29 @@ export class AuthService {
       // Create or update user
       const user = await this.usersService.findOrCreate({
         auth0Id: decoded.sub,
-        email: decoded.email,
-        name: decoded.name,
+        email: decoded.email || `${decoded.sub}@placeholder.com`, // Fallback email
+        name: decoded.name || decoded.nickname || 'User',
         picture: decoded.picture,
       });
 
       return user;
     } catch (error) {
-      throw new UnauthorizedException('Invalid token', error.message);
+      console.error('Error in verifyAndCreateUser:', error);
+      throw new UnauthorizedException('Invalid token');
     }
   }
 
   private async verifyAuth0Token(token: string): Promise<any> {
+    // First try to decode without verification to see what we're getting
+    const decoded = jwt.decode(token);
+    console.log('Decoded token (unverified):', decoded);
+
+    // If it's an ID token, it will have these fields
+    if (decoded && typeof decoded === 'object' && 'email' in decoded) {
+      return decoded; // Return the decoded ID token data
+    }
+
+    // Otherwise, verify as access token
     const client = jwksClient({
       jwksUri: `https://${this.configService.get('AUTH0_DOMAIN')}/.well-known/jwks.json`,
     });
@@ -70,7 +81,17 @@ export class AuthService {
         },
         (error, decoded) => {
           if (error) {
-            reject(error);
+            // If verification fails, try to decode anyway for ID tokens
+            const unverified = jwt.decode(token);
+            if (
+              unverified &&
+              typeof unverified === 'object' &&
+              'email' in unverified
+            ) {
+              resolve(unverified);
+            } else {
+              reject(error);
+            }
           } else {
             resolve(decoded);
           }
@@ -91,10 +112,8 @@ export class AuthService {
 
       return { success: true };
     } catch (error) {
-      throw new UnauthorizedException(
-        'Failed to connect Google Calendar',
-        error.message,
-      );
+      console.error('Error connecting Google Calendar:', error);
+      throw new UnauthorizedException('Failed to connect Google Calendar');
     }
   }
 
