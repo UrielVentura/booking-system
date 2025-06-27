@@ -22,7 +22,6 @@ export interface CreateBookingDto {
 
 class BookingsAPI {
   private async getToken() {
-    // Get token from Auth0
     const response = await fetch('/api/auth/me');
     const data = await response.json();
     return data.accessToken;
@@ -57,7 +56,7 @@ class BookingsAPI {
     data: Partial<CreateBookingDto>
   ): Promise<Booking> {
     const token = await this.getToken();
-    const response = await axios.patch(`${API_URL}/bookings/${id}`, data, {
+    const response = await axios.put(`${API_URL}/bookings/${id}`, data, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;

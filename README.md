@@ -1,198 +1,306 @@
-# 📅 Booking System
+# Booking System with Google Calendar Integration
 
-A full-stack booking application that allows users to schedule appointments without conflicts, integrating with Google Calendar for comprehensive availability checking.
+Complete booking system with Google Calendar integration, real-time conflict detection, and Auth0 authentication.
 
-## 🚀 Features
+## ✨ Features
 
-- **Google Authentication** via Auth0
-- **Conflict-free Booking** system
-- **Google Calendar Integration** for real-time availability
-- **Modern UI** with Next.js and TailwindCSS
-- **RESTful API** with NestJS
-- **PostgreSQL Database** with Prisma ORM
-- **Docker** containerization for easy deployment
+### Core Functionality
 
-## 📋 Prerequisites
+- ✅ **User Authentication**: Secure login with Auth0 + Google
+- ✅ **Booking Management**: Create, edit, view, and cancel bookings
+- ✅ **Conflict Detection**: Prevents conflicts with existing system bookings
+- ✅ **Google Calendar Integration**: Bidirectional Google Calendar connection
+- ✅ **Real-time Validation**: Instant conflict verification
+- ✅ **Auto Calendar Events**: Automatically creates events in Google Calendar
 
-- Docker & Docker Compose
-- Node.js 18+ (for local development)
-- Auth0 Account
-- Google Cloud Console Account (for Calendar API)
+### Technical Features
+
+- ✅ **Docker Support**: Containerized PostgreSQL database
+- ✅ **JWT Authentication**: Secure tokens for API calls
+- ✅ **Real-time Updates**: Instantly updated UI
+- ✅ **Responsive Design**: Works on desktop and mobile
+- ✅ **Error Handling**: Robust error handling and validations
 
 ## 🛠️ Tech Stack
 
 ### Frontend
 
-- **Next.js 14** - React framework with App Router
-- **TypeScript** - Type safety
-- **TailwindCSS** - Styling
-- **Auth0** - Authentication
-- **React Query** - Data fetching
-- **FullCalendar** - Calendar UI
+- **Next.js 14** (App Router)
+- **Material-UI** for components
+- **Auth0 React SDK** for authentication
+- **TypeScript** for type safety
 
 ### Backend
 
-- **NestJS** - Node.js framework
-- **Prisma** - ORM
-- **PostgreSQL** - Database
-- **Auth0** - JWT validation
-- **Google Calendar API** - Calendar integration
-- **Swagger** - API documentation
+- **NestJS** with TypeScript
+- **PostgreSQL** with Prisma ORM
+- **Google Calendar API** for integration
+- **JWT** for authentication
+- **Swagger** for documentation
 
-## 🏃‍♂️ Quick Start
+### Infrastructure
 
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/yourusername/booking-system.git
-cd booking-system
-```
-
-### 2. Environment Setup
-
-```bash
-cp .env.example .env
-# Edit .env with your Auth0 and Google credentials
-```
-
-### 3. Auth0 Configuration
-
-1. Create an Auth0 account at [auth0.com](https://auth0.com)
-2. Create a new application (Single Page Application)
-3. Create an API in Auth0
-4. Configure callback URLs:
-   - Callback: `http://localhost:3000/api/auth/callback`
-   - Logout: `http://localhost:3000`
-5. Enable Google social connection
-
-### 4. Google Calendar API Setup
-
-1. Go to [Google Cloud Console](https://console.cloud.google.com)
-2. Create a new project
-3. Enable Google Calendar API
-4. Create OAuth 2.0 credentials
-5. Add authorized redirect URI: `http://localhost:3001/auth/google/callback`
-
-### 5. Run with Docker
-
-```bash
-# Start all services
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Run database migrations
-docker exec booking-backend npx prisma migrate dev
-```
-
-The application will be available at:
-
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:3001
-- API Documentation: http://localhost:3001/api
-
-## 📁 Project Structure
-
-```
-booking-system/
-├── backend/                 # NestJS API
-│   ├── src/
-│   │   ├── auth/           # Authentication module
-│   │   ├── bookings/       # Booking CRUD operations
-│   │   ├── users/          # User management
-│   │   ├── google/         # Google Calendar integration
-│   │   └── common/         # Shared resources
-│   └── prisma/             # Database schema
-├── frontend/               # Next.js application
-│   ├── src/
-│   │   ├── app/           # App router pages
-│   │   ├── components/    # React components
-│   │   ├── lib/          # Utilities and API client
-│   │   └── hooks/        # Custom React hooks
-├── docker-compose.yml      # Docker orchestration
-└── docs/                   # Additional documentation
-```
-
-## 🔧 Development
-
-### Backend Development
-
-```bash
-cd backend
-npm install
-npm run start:dev
-```
-
-### Frontend Development
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-### Database Commands
-
-```bash
-# Generate Prisma client
-docker exec booking-backend npx prisma generate
-
-# Create migration
-docker exec booking-backend npx prisma migrate dev --name migration_name
-
-# View database
-docker exec booking-backend npx prisma studio
-```
-
-## 📚 API Documentation
-
-Once the backend is running, visit http://localhost:3001/api for Swagger documentation.
-
-### Main Endpoints
-
-- `POST /auth/login` - Authenticate user
-- `GET /bookings` - Get user bookings
-- `POST /bookings` - Create new booking
-- `DELETE /bookings/:id` - Cancel booking
-- `POST /auth/google/connect` - Connect Google Calendar
-- `GET /availability` - Check availability
-
-## 🧪 Testing
-
-```bash
-# Backend tests
-cd backend
-npm run test
-
-# Frontend tests
-cd frontend
-npm run test
-```
-
-## 📦 Deployment
-
-The application is containerized and ready for deployment. For production:
-
-1. Update environment variables
-2. Build production images:
-   ```bash
-   docker-compose -f docker-compose.prod.yml build
-   ```
-3. Deploy to your preferred cloud provider
-
-## 🤝 Contributing
-
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for commit conventions and development guidelines.
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
-## 👥 Author
-
-Your Name - [your.email@example.com](mailto:your.email@example.com)
+- **Docker & Docker Compose** for database
+- **Prisma** for migrations and database management
 
 ---
 
-Built with ❤️ for Designli's technical assessment
+## 🚀 Installation and Setup
+
+### Prerequisites
+
+- Node.js 18+
+- Docker and Docker Compose
+- Google Cloud Platform account (for Google Calendar API)
+- Auth0 account
+
+### 1. Clone and install dependencies
+
+```bash
+git clone <repo-url>
+cd booking-system
+
+# Install project dependencies
+npm install
+npm run install:all
+```
+
+### 2. Auth0 Configuration
+
+1. Create an application in [Auth0 Dashboard](https://manage.auth0.com/)
+2. Configure allowed URLs:
+   - **Allowed Callback URLs**: `http://localhost:3000/api/auth/callback`
+   - **Allowed Logout URLs**: `http://localhost:3000`
+   - **Allowed Web Origins**: `http://localhost:3000`
+
+### 3. Google Cloud Configuration
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a project and enable Google Calendar API
+3. Create OAuth 2.0 credentials:
+   - **Authorized redirect URIs**:
+     - `https://dev-xxxxxxxx.us.auth0.com/login/callback` (for Auth0)
+     - `http://localhost:3000/api/google-calendar/callback` (for the system)
+
+### 4. Environment Variables
+
+#### Backend (.env) at root level
+
+```env
+# Database
+DB_USER=bookinguser
+DB_PASSWORD=bookingpass
+DB_NAME=bookingdb
+DATABASE_URL="postgresql://bookinguser:bookingpass@localhost:5432/bookingdb?schema=public"
+
+# Auth0
+AUTH0_DOMAIN=your-auth0-domain.auth0.com
+AUTH0_CLIENT_ID=your-auth0-client-id
+AUTH0_CLIENT_SECRET=your-auth0-client-secret
+AUTH0_AUDIENCE=https://booking-system-api
+AUTH0_REDIRECT_URI=http://localhost:3000/api/auth/callback
+
+# Google Calendar API
+GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GOOGLE_REDIRECT_URI=http://localhost:3000/api/google-calendar/callback
+
+NODE_ENV=development
+```
+
+#### Frontend (frontend/.env.local)
+
+```env
+# Auth0 Configuration
+AUTH0_SECRET=your-long-random-string-32-chars-min
+AUTH0_BASE_URL=http://localhost:3000
+AUTH0_ISSUER_BASE_URL=https://your-auth0-domain.auth0.com
+AUTH0_CLIENT_ID=your-auth0-client-id
+AUTH0_CLIENT_SECRET=your-auth0-client-secret
+
+# API Configuration
+NEXT_PUBLIC_API_URL=http://localhost:3001
+```
+
+### 5. Database Setup
+
+```bash
+# Start PostgreSQL with Docker
+npm run db:up
+
+# Apply migrations
+npm run prisma:migrate
+
+# (Optional) Open Prisma Studio
+npm run prisma:studio
+```
+
+### 6. Start the System
+
+```bash
+# Option 1: Start everything together
+npm run dev
+
+# Option 2: Start separately
+npm run dev:backend  # Port 3001
+npm run dev:frontend # Port 3000
+```
+
+### 7. Access the System
+
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:3001
+- **Swagger Docs**: http://localhost:3001/api
+- **Prisma Studio**: http://localhost:5555
+
+---
+
+## 📚 API Documentation
+
+### Authentication
+
+All endpoints (except callbacks) require JWT token in header:
+
+```
+Authorization: Bearer <jwt-token>
+```
+
+### Bookings Endpoints
+
+| Method | Endpoint                    | Description                   | Parameters                                 |
+| ------ | --------------------------- | ----------------------------- | ------------------------------------------ |
+| GET    | `/bookings`                 | List all user bookings        | -                                          |
+| POST   | `/bookings`                 | Create a new booking          | `{ title, startTime, endTime }`            |
+| PUT    | `/bookings/:id`             | Update an existing booking    | `{ title?, startTime?, endTime? }`         |
+| DELETE | `/bookings/:id`             | Delete a booking              | -                                          |
+| GET    | `/bookings/check-conflicts` | Check conflicts in time range | `?startTime=...&endTime=...&excludeId=...` |
+
+### Google Calendar Endpoints
+
+| Method | Endpoint                           | Description                          |
+| ------ | ---------------------------------- | ------------------------------------ |
+| GET    | `/google-calendar/auth-url`        | Get URL to connect Google Calendar   |
+| GET    | `/google-calendar/callback`        | Handle Google OAuth callback         |
+| DELETE | `/google-calendar/disconnect`      | Disconnect Google Calendar           |
+| GET    | `/google-calendar/check-conflicts` | Check conflicts with Google Calendar |
+
+> 📖 **Complete interactive documentation**: [http://localhost:3001/api](http://localhost:3001/api)
+
+---
+
+## 🧪 Development and Testing
+
+### Useful Commands
+
+```bash
+# Database
+npm run db:up           # Start PostgreSQL
+npm run db:down         # Stop PostgreSQL
+npm run db:logs         # View database logs
+npm run prisma:studio   # Open Prisma Studio
+npm run prisma:migrate  # Apply migrations
+
+# Development
+npm run dev             # Start entire system
+npm run dev:backend     # Backend only
+npm run dev:frontend    # Frontend only
+
+# Build and production
+npm run build           # Build both projects
+npm run start           # Start in production mode
+```
+
+### Testing Endpoints
+
+1. **With Swagger**: Go to http://localhost:3001/api
+2. **Debugging**: Check backend console logs
+
+---
+
+## 🔧 Troubleshooting
+
+### Database Connection Error
+
+```bash
+# Check if PostgreSQL is running
+docker ps
+
+# Restart container
+npm run db:down && npm run db:up
+```
+
+### Auth0 Error
+
+- Verify callback URLs are correctly configured
+- Confirm environment variables are correct
+- Check that Auth0 domain is accessible
+
+### Google Calendar Error
+
+- Verify Google Calendar API is enabled
+- Confirm redirect URIs are configured
+- Check OAuth scopes are correct
+
+### 401 Error on Endpoints
+
+- Verify JWT token is valid
+- Confirm user is authenticated
+- Check Auth0 configuration
+
+---
+
+## 🚀 Deployment
+
+### Production Environment Variables
+
+```env
+# Change for production
+AUTH0_BASE_URL=https://your-domain.com
+GOOGLE_REDIRECT_URI=https://your-domain.com/api/google-calendar/callback
+DATABASE_URL=postgresql://user:pass@prod-db:5432/booking
+```
+
+### Docker Build
+
+```bash
+# Backend build
+cd backend && docker build -t booking-backend .
+
+# Frontend build
+cd frontend && docker build -t booking-frontend .
+```
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License. See `LICENSE` for more details.
+
+---
+
+## 🎯 Challenge Requirements Completed
+
+### "The Easy One" ✅
+
+- ✅ Users login using Google (Auth0)
+- ✅ Users can book time slots (Name, start time, end time)
+- ✅ Users can view their booked slots and cancel them
+- ✅ Users cannot book if conflicts with existing booking in system
+- ✅ Users cannot book if conflicts with Google Calendar event
+- ✅ Users can connect their Google Calendar
+- ✅ System checks Google Calendar before confirming booking
+
+### "The Real Challenge" ✅
+
+- ✅ Docker configuration for deployment (PostgreSQL)
+- ✅ PostgreSQL instead of SQLite
+- ✅ Auth0 for authentication
+
+### Bonus Features ✅
+
+- ✅ Edit booking functionality
+- ✅ Real-time conflict validation
+- ✅ Bidirectional Google Calendar sync
+- ✅ Responsive Material-UI design
+- ✅ Comprehensive error handling
+- ✅ Complete API documentation

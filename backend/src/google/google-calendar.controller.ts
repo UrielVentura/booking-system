@@ -28,7 +28,6 @@ export class GoogleCalendarController {
   }
 
   @Get('callback')
-  // @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Handle Google Calendar OAuth callback' })
   async handleCallback(
@@ -37,17 +36,11 @@ export class GoogleCalendarController {
     @Res() res: Response,
   ) {
     try {
-      console.log('🎯 Callback received:', {
-        code: code?.substring(0, 20) + '...',
-        state,
-      });
-
       if (!state || !code) {
         throw new Error('Missing state or code parameter');
       }
 
       await this.googleCalendarService.handleCallback(state, code);
-      console.log('✅ Callback processed successfully');
       // Redirect to frontend success page
       res.redirect('http://localhost:3000/dashboard?google_connected=true');
     } catch (error) {

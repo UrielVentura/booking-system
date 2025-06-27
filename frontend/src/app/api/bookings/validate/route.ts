@@ -22,11 +22,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log(
-      'Making request to backend:',
-      `${process.env.NEXT_PUBLIC_API_URL}/google-calendar/check-conflicts`
-    );
-
     const params = new URLSearchParams({
       startTime: startTime,
       endTime: endTime,
@@ -42,8 +37,6 @@ export async function POST(req: NextRequest) {
         },
       }
     );
-
-    console.log('Backend response status:', backendResponse.status);
 
     if (!backendResponse.ok) {
       const errorText = await backendResponse.text();

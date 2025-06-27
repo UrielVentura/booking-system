@@ -3,7 +3,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
   UseGuards,
@@ -48,11 +48,13 @@ export class BookingsController {
     @Request() req,
     @Query('startTime') startTime: string,
     @Query('endTime') endTime: string,
+    @Query('excludeId') excludeId?: string,
   ) {
     const conflicts = await this.bookingsService.checkConflicts(
       req.user.userId,
       new Date(startTime),
       new Date(endTime),
+      excludeId,
     );
     return { hasConflicts: conflicts.length > 0, conflicts };
   }
@@ -63,7 +65,7 @@ export class BookingsController {
     return this.bookingsService.findOne(id, req.user.userId);
   }
 
-  @Patch(':id')
+  @Put(':id')
   @ApiOperation({ summary: 'Update a booking' })
   update(
     @Request() req,

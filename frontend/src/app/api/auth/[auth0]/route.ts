@@ -19,8 +19,6 @@ const afterCallback = async (req: any, session: any) => {
 
     if (!response.ok) {
       console.error('Failed to sync user with backend:', await response.text());
-    } else {
-      console.log('User synced successfully');
     }
   } catch (error) {
     console.error('Error syncing user:', error);

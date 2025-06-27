@@ -32,7 +32,6 @@ export class UsersService {
     });
 
     if (existingUser) {
-      // Update user info if needed
       return this.prisma.user.update({
         where: { id: existingUser.id },
         data: {

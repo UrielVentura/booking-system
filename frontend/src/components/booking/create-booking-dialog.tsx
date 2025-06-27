@@ -66,14 +66,12 @@ export function CreateBookingDialog({
     setError(null);
 
     try {
-      // Create the booking
       await onCreate({
         title,
         startTime: startTime.toISOString(),
         endTime: endTime.toISOString(),
       });
 
-      // Reset form
       setTitle('');
       setStartTime(new Date());
       setEndTime(addHours(new Date(), 1));

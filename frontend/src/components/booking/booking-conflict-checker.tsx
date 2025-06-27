@@ -30,6 +30,7 @@ interface BookingConflictCheckerProps {
   startTime: string;
   endTime: string;
   onValidationChange: (isValid: boolean, conflicts: BookingConflict[]) => void;
+  excludeBookingId?: string;
 }
 
 export function BookingConflictChecker({
@@ -37,6 +38,7 @@ export function BookingConflictChecker({
   startTime,
   endTime,
   onValidationChange,
+  excludeBookingId,
 }: BookingConflictCheckerProps) {
   const [checking, setChecking] = useState(false);
   const [conflicts, setConflicts] = useState<BookingConflict[]>([]);
@@ -45,12 +47,11 @@ export function BookingConflictChecker({
   useEffect(() => {
     const checkKey = `${name}-${startTime}-${endTime}`;
 
-    // Solo verificar si hay datos completos y han cambiado
     if (name && startTime && endTime && checkKey !== lastChecked) {
       const timeoutId = setTimeout(() => {
         checkConflicts();
         setLastChecked(checkKey);
-      }, 500); // Debounce de 500ms
+      }, 500);
 
       return () => clearTimeout(timeoutId);
     }
@@ -89,7 +90,6 @@ export function BookingConflictChecker({
       onValidationChange(foundConflicts.length === 0, foundConflicts);
     } catch (error) {
       console.error('Error checking conflicts:', error);
-      // En caso de error, permitir que continúe pero mostrar advertencia
       setConflicts([]);
       onValidationChange(true, []);
     } finally {

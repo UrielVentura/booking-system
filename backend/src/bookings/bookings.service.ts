@@ -24,7 +24,6 @@ export class BookingsService {
     auth0Id: string,
     createBookingDto: CreateBookingDto,
   ): Promise<Booking> {
-    // First, get the user by auth0Id
     const user = await this.prisma.user.findUnique({
       where: { auth0Id },
     });
@@ -36,7 +35,6 @@ export class BookingsService {
     const startTime = new Date(createBookingDto.startTime);
     const endTime = new Date(createBookingDto.endTime);
 
-    // Validate times
     if (startTime >= endTime) {
       throw new BadRequestException('End time must be after start time');
     }
@@ -45,7 +43,6 @@ export class BookingsService {
       throw new BadRequestException('Cannot create bookings in the past');
     }
 
-    // Check for conflicts
     const conflicts = await this.checkConflicts(user.id, startTime, endTime);
     if (conflicts.length > 0) {
       throw new BadRequestException(
@@ -53,7 +50,6 @@ export class BookingsService {
       );
     }
 
-    // Check for Google Calendar conflicts
     const hasGoogleConflicts =
       await this.googleCalendarService.checkGoogleCalendarConflicts(
         auth0Id,
@@ -66,7 +62,6 @@ export class BookingsService {
       );
     }
 
-    // Create the booking
     const booking = await this.prisma.booking.create({
       data: {
         title: createBookingDto.title,
@@ -76,13 +71,11 @@ export class BookingsService {
       },
     });
 
-    // Try to create event in Google Calendar
     const googleEvent = await this.googleCalendarService.createCalendarEvent(
       auth0Id,
       booking,
     );
     if (googleEvent?.id) {
-      // Update booking with Google Event ID
       await this.prisma.booking.update({
         where: { id: booking.id },
         data: { googleEventId: googleEvent.id },
@@ -149,12 +142,10 @@ export class BookingsService {
       ? new Date(updateBookingDto.endTime)
       : booking.endTime;
 
-    // Validate times
     if (startTime >= endTime) {
       throw new BadRequestException('End time must be after start time');
     }
 
-    // Check for conflicts (excluding current booking)
     const conflicts = await this.checkConflicts(
       user.id,
       startTime,
@@ -167,14 +158,43 @@ export class BookingsService {
       );
     }
 
-    return this.prisma.booking.update({
+    if (updateBookingDto.startTime || updateBookingDto.endTime) {
+      const hasGoogleConflicts =
+        await this.googleCalendarService.checkGoogleCalendarConflicts(
+          auth0Id,
+          startTime,
+          endTime,
+          booking.googleEventId,
+        );
+      if (hasGoogleConflicts) {
+        throw new BadRequestException(
+          'Time slot conflicts with your Google Calendar',
+        );
+      }
+    }
+
+    const updatedBooking = await this.prisma.booking.update({
       where: { id },
       data: {
-        title: updateBookingDto.title,
+        title: updateBookingDto.title || booking.title,
         startTime,
         endTime,
       },
     });
+
+    if (booking.googleEventId) {
+      try {
+        await this.googleCalendarService.updateCalendarEvent(
+          auth0Id,
+          booking.googleEventId,
+          updatedBooking,
+        );
+      } catch (error) {
+        console.error('Failed to update Google Calendar event:', error);
+      }
+    }
+
+    return updatedBooking;
   }
 
   async remove(id: string, auth0Id: string): Promise<Booking> {
@@ -196,7 +216,6 @@ export class BookingsService {
       throw new NotFoundException('Booking not found');
     }
 
-    // Delete from Google Calendar if connected
     if (booking.googleEventId) {
       await this.googleCalendarService.deleteCalendarEvent(
         auth0Id,
@@ -221,17 +240,14 @@ export class BookingsService {
         id: excludeId ? { not: excludeId } : undefined,
         OR: [
           {
-            // New booking starts during existing booking
             startTime: { lte: startTime },
             endTime: { gt: startTime },
           },
           {
-            // New booking ends during existing booking
             startTime: { lt: endTime },
             endTime: { gte: endTime },
           },
           {
-            // New booking completely contains existing booking
             startTime: { gte: startTime },
             endTime: { lte: endTime },
           },

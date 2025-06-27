@@ -9,11 +9,6 @@ export async function GET() {
       return NextResponse.json({ connected: false });
     }
 
-    console.log(
-      'Making request to backend:',
-      `${process.env.NEXT_PUBLIC_API_URL}/google-calendar/check-conflicts`
-    );
-
     const testDate = new Date();
     const params = new URLSearchParams({
       startTime: testDate.toISOString(),
@@ -29,8 +24,6 @@ export async function GET() {
         },
       }
     );
-
-    console.log('Backend response status:', backendResponse.status);
 
     if (backendResponse.status === 401) {
       return NextResponse.json({ connected: false });

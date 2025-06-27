@@ -40,35 +40,19 @@ export class GoogleCalendarService {
       state: userId,
     });
 
-    console.log('Generated auth URL:', url); // ← Agrega este log
-    console.log('With state (userId):', userId); // ← Y este
-
     return url;
   }
 
   async handleCallback(auth0Id: string, code: string) {
     try {
-      console.log('🔄 Processing callback for user:', auth0Id);
-
       const { tokens } = await this.oauth2Client.getToken(code);
 
-      console.log('🎫 Tokens received:', {
-        hasRefreshToken: !!tokens.refresh_token,
-        hasAccessToken: !!tokens.access_token,
-      });
-
-      // Update user with refresh token
-      const result = await this.prisma.user.update({
+      await this.prisma.user.update({
         where: { auth0Id },
         data: {
           googleRefreshToken: tokens.refresh_token || '',
           googleCalendarId: 'primary',
         },
-      });
-
-      console.log('💾 User updated:', {
-        auth0Id: result.auth0Id,
-        hasRefreshToken: !!result.googleRefreshToken,
       });
 
       return {
@@ -103,7 +87,6 @@ export class GoogleCalendarService {
     }
 
     try {
-      // Set the credentials
       this.oauth2Client.setCredentials({
         refresh_token: user.googleRefreshToken,
       });
@@ -127,17 +110,20 @@ export class GoogleCalendarService {
     auth0Id: string,
     startTime: Date,
     endTime: Date,
+    excludeEventId?: string,
   ): Promise<boolean> {
     const events = await this.getCalendarEvents(auth0Id, startTime, endTime);
 
-    // Check if any event overlaps with our time range
     return events.some((event) => {
       if (!event.start?.dateTime || !event.end?.dateTime) return false;
+
+      if (excludeEventId && event.id === excludeEventId) {
+        return false;
+      }
 
       const eventStart = new Date(event.start.dateTime);
       const eventEnd = new Date(event.end.dateTime);
 
-      // Check for overlap
       return eventStart < endTime && eventEnd > startTime;
     });
   }
@@ -201,6 +187,50 @@ export class GoogleCalendarService {
       });
     } catch (error) {
       console.error('Error deleting calendar event:', error);
+    }
+  }
+
+  async updateCalendarEvent(
+    auth0Id: string,
+    googleEventId: string,
+    booking: any,
+  ) {
+    const user = await this.prisma.user.findUnique({
+      where: { auth0Id },
+    });
+
+    if (!user?.googleRefreshToken || !googleEventId) {
+      return null;
+    }
+
+    try {
+      this.oauth2Client.setCredentials({
+        refresh_token: user.googleRefreshToken,
+      });
+
+      const updatedEvent = {
+        summary: booking.title,
+        start: {
+          dateTime: booking.startTime.toISOString(),
+          timeZone: 'America/New_York',
+        },
+        end: {
+          dateTime: booking.endTime.toISOString(),
+          timeZone: 'America/New_York',
+        },
+        description: 'Updated by Booking System',
+      };
+
+      const response = await this.calendar.events.update({
+        calendarId: 'primary',
+        eventId: googleEventId,
+        requestBody: updatedEvent,
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('Error updating calendar event:', error);
+      return null;
     }
   }
 }

@@ -26,13 +26,11 @@ export class AuthService {
 
   async verifyAndCreateUser(token: string) {
     try {
-      // Verify the Auth0 token
       const decoded = await this.verifyAuth0Token(token);
 
-      // Create or update user
       const user = await this.usersService.findOrCreate({
         auth0Id: decoded.sub,
-        email: decoded.email || `${decoded.sub}@placeholder.com`, // Fallback email
+        email: decoded.email || `${decoded.sub}@placeholder.com`,
         name: decoded.name || decoded.nickname || 'User',
         picture: decoded.picture,
       });
@@ -45,16 +43,12 @@ export class AuthService {
   }
 
   private async verifyAuth0Token(token: string): Promise<any> {
-    // First try to decode without verification to see what we're getting
     const decoded = jwt.decode(token);
-    console.log('Decoded token (unverified):', decoded);
 
-    // If it's an ID token, it will have these fields
     if (decoded && typeof decoded === 'object' && 'email' in decoded) {
-      return decoded; // Return the decoded ID token data
+      return decoded;
     }
 
-    // Otherwise, verify as access token
     const client = jwksClient({
       jwksUri: `https://${this.configService.get('AUTH0_DOMAIN')}/.well-known/jwks.json`,
     });
@@ -81,7 +75,6 @@ export class AuthService {
         },
         (error, decoded) => {
           if (error) {
-            // If verification fails, try to decode anyway for ID tokens
             const unverified = jwt.decode(token);
             if (
               unverified &&
@@ -104,10 +97,9 @@ export class AuthService {
     try {
       const { tokens } = await this.oauth2Client.getToken(code);
 
-      // Save the refresh token to the user
       await this.usersService.updateGoogleTokens(userId, {
         refreshToken: tokens.refresh_token,
-        calendarId: 'primary', // You might want to get the actual calendar ID
+        calendarId: 'primary',
       });
 
       return { success: true };

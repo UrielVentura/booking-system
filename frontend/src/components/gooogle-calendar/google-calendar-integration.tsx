@@ -1,4 +1,3 @@
-// components/GoogleCalendarIntegration.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -67,7 +66,6 @@ export function GoogleCalendarIntegration({
 
       if (response.ok) {
         const { authUrl } = await response.json();
-        // Redirect to Google OAuth
         window.location.href = authUrl;
       } else {
         throw new Error('Failed to get authorization URL');

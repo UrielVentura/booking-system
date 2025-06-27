@@ -14,12 +14,10 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    // Add any custom logic here
     return super.canActivate(context);
   }
 
   handleRequest(err: any, user: any, info: any) {
-    // Handle authentication errors properly
     if (err || !user) {
       throw new UnauthorizedException(
         err?.message || 'Invalid token or no token provided',

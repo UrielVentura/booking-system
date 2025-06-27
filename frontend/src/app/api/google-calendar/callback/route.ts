@@ -18,20 +18,12 @@ export async function GET(req: NextRequest) {
       return redirect('/dashboard?google_connected=false');
     }
 
-    console.log('🎯 Google callback received:', {
-      code: code.substring(0, 20) + '...',
-      state,
-    });
-
     const session = await getSession();
 
     if (!session) {
       console.error('❌ No session found');
       return redirect('/dashboard?google_connected=false');
     }
-
-    // ✅ CRÍTICO: Llamar al backend para procesar el código
-    console.log('🔄 Calling backend to process callback...');
 
     const backendResponse = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/google-calendar/callback?code=${code}&state=${state}`,
@@ -44,15 +36,12 @@ export async function GET(req: NextRequest) {
       }
     );
 
-    console.log('📡 Backend callback response status:', backendResponse.status);
-
     if (!backendResponse.ok) {
       const errorText = await backendResponse.text();
       console.error('❌ Backend callback failed:', errorText);
       return redirect('/dashboard?google_connected=false');
     }
 
-    console.log('✅ Backend callback successful');
     return redirect('/dashboard?google_connected=true');
   } catch (error) {
     console.error('💥 Error handling calendar callback:', error);

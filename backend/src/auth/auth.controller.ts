@@ -47,8 +47,6 @@ export class AuthController {
   @ApiOperation({ summary: 'Google OAuth callback' })
   googleCallback(@Request() req, @Res() res: Response) {
     const { code } = req.query;
-    // In a real app, you'd handle this differently
-    // For now, redirect to frontend with code
     res.redirect(`http://localhost:3000/connect-google?code=${code}`);
   }
 }

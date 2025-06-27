@@ -9,11 +9,6 @@ export async function POST() {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    console.log(
-      'Making request to backend:',
-      `${process.env.NEXT_PUBLIC_API_URL}/google-calendar/disconnect`
-    );
-
     const backendResponse = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/google-calendar/disconnect`,
       {
@@ -24,8 +19,6 @@ export async function POST() {
         },
       }
     );
-
-    console.log('Backend response status:', backendResponse.status);
 
     if (!backendResponse.ok) {
       const errorText = await backendResponse.text();
