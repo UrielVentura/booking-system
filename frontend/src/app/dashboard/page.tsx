@@ -3,30 +3,29 @@
 import { useUser } from '@auth0/nextjs-auth0/client';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import Link from 'next/link';
 import {
-  AppBar,
   Avatar,
   Box,
   Button,
   Card,
   CardContent,
   Container,
-  Grid,
-  IconButton,
-  Toolbar,
   Typography,
   CircularProgress,
   Paper,
 } from '@mui/material';
 import {
   CalendarMonth as CalendarIcon,
-  Logout as LogoutIcon,
   Person as PersonIcon,
 } from '@mui/icons-material';
+import { DashboardLayout } from '@/components/layout/dashboard-layout';
 
 export default function Dashboard() {
-  const { user, isLoading } = useUser();
+  const { user: authUser, isLoading } = useUser();
   const router = useRouter();
+
+  const user = authUser?.user || authUser;
 
   useEffect(() => {
     if (!user && !isLoading) {
@@ -52,31 +51,11 @@ export default function Dashboard() {
   }
 
   return (
-    <Box sx={{ flexGrow: 1, bgcolor: '#f5f5f5', minHeight: '100vh' }}>
-      <AppBar position='static' color='primary'>
-        <Toolbar>
-          <CalendarIcon sx={{ mr: 2 }} />
-          <Typography variant='h6' component='div' sx={{ flexGrow: 1 }}>
-            Booking System
-          </Typography>
-          <Typography sx={{ mr: 2, display: { xs: 'none', sm: 'block' } }}>
-            Welcome, {user.name}!
-          </Typography>
-          <Avatar
-            src={user.picture || ''}
-            alt={user.name || 'User'}
-            sx={{ mr: 2 }}
-          />
-          <IconButton color='inherit' href='/api/auth/logout' component='a'>
-            <LogoutIcon />
-          </IconButton>
-        </Toolbar>
-      </AppBar>
-
-      <Container maxWidth='lg' sx={{ mt: 4, mb: 4 }}>
-        <Grid container spacing={3}>
-          {/* Welcome Card */}
-          <Grid item xs={12}>
+    <DashboardLayout>
+      <Container maxWidth='lg'>
+        <Box display='flex' flexWrap='wrap' gap={3}>
+          {/* Welcome Card - ocupa 100% */}
+          <Box sx={{ flex: '1 1 100%' }}>
             <Paper sx={{ p: 3 }}>
               <Typography variant='h4' gutterBottom>
                 Welcome to Your Dashboard
@@ -86,10 +65,15 @@ export default function Dashboard() {
                 place.
               </Typography>
             </Paper>
-          </Grid>
+          </Box>
 
           {/* Profile Card */}
-          <Grid item xs={12} md={6}>
+          <Box
+            sx={{
+              flex: '1 1 calc(50% - 24px)',
+              minWidth: '300px',
+            }}
+          >
             <Card elevation={2}>
               <CardContent>
                 <Box display='flex' alignItems='center' mb={2}>
@@ -120,10 +104,15 @@ export default function Dashboard() {
                 </Box>
               </CardContent>
             </Card>
-          </Grid>
+          </Box>
 
-          {/* Calendar Integration Card */}
-          <Grid item xs={12} md={6}>
+          {/* Quick Actions Card */}
+          <Box
+            sx={{
+              flex: '1 1 calc(50% - 24px)',
+              minWidth: '300px',
+            }}
+          >
             <Card elevation={2} sx={{ height: '100%' }}>
               <CardContent>
                 <Box textAlign='center' py={2}>
@@ -131,25 +120,34 @@ export default function Dashboard() {
                     sx={{ fontSize: 48, color: 'primary.main', mb: 2 }}
                   />
                   <Typography variant='h6' gutterBottom>
-                    Calendar Integration Coming Soon
+                    Quick Actions
                   </Typography>
-                  <Typography
-                    variant='body2'
-                    color='text.secondary'
-                    sx={{ mb: 3 }}
+                  <Box
+                    sx={{
+                      mt: 3,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 2,
+                    }}
                   >
-                    Soon you&apos;ll be able to connect your Google Calendar and
-                    manage all your bookings seamlessly.
-                  </Typography>
-                  <Button variant='outlined' disabled>
-                    Connect Google Calendar
-                  </Button>
+                    <Button
+                      variant='contained'
+                      fullWidth
+                      component={Link}
+                      href='/bookings'
+                    >
+                      View All Bookings
+                    </Button>
+                    <Button variant='outlined' disabled fullWidth>
+                      Connect Google Calendar
+                    </Button>
+                  </Box>
                 </Box>
               </CardContent>
             </Card>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </Container>
-    </Box>
+    </DashboardLayout>
   );
 }

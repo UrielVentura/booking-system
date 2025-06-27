@@ -7,7 +7,6 @@ import {
   Box,
   Button,
   Container,
-  Grid,
   Typography,
   Card,
   CardContent,
@@ -88,36 +87,66 @@ export default function Home() {
           </Typography>
         </Box>
 
-        <Grid container spacing={4} mb={8}>
-          <Grid item xs={12} sm={6} md={3}>
+        <Box
+          display='flex'
+          flexWrap='wrap'
+          gap={4}
+          mb={8}
+          justifyContent='center'
+        >
+          <Box
+            sx={{
+              flex: '1 1 calc(25% - 32px)',
+              minWidth: '250px',
+              maxWidth: '100%',
+            }}
+          >
             <FeatureCard
               icon={<CalendarIcon sx={{ fontSize: 40 }} />}
               title='Google Calendar Sync'
               description='Automatically sync with your existing calendar'
             />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          </Box>
+          <Box
+            sx={{
+              flex: '1 1 calc(25% - 32px)',
+              minWidth: '250px',
+              maxWidth: '100%',
+            }}
+          >
             <FeatureCard
               icon={<ShieldIcon sx={{ fontSize: 40 }} />}
               title='Conflict Prevention'
               description='Never double-book with smart conflict detection'
             />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          </Box>
+          <Box
+            sx={{
+              flex: '1 1 calc(25% - 32px)',
+              minWidth: '250px',
+              maxWidth: '100%',
+            }}
+          >
             <FeatureCard
               icon={<ClockIcon sx={{ fontSize: 40 }} />}
               title='Real-time Updates'
               description='Instant updates across all your devices'
             />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          </Box>
+          <Box
+            sx={{
+              flex: '1 1 calc(25% - 32px)',
+              minWidth: '250px',
+              maxWidth: '100%',
+            }}
+          >
             <FeatureCard
               icon={<ZapIcon sx={{ fontSize: 40 }} />}
               title='Fast & Intuitive'
               description='Book appointments in seconds, not minutes'
             />
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
 
         <Box textAlign='center'>
           <Button

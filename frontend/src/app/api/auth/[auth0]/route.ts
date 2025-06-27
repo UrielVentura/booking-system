@@ -1,4 +1,5 @@
-import { handleAuth, handleCallback } from '@auth0/nextjs-auth0';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { handleAuth, handleCallback, handleLogin } from '@auth0/nextjs-auth0';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,5 +30,11 @@ const afterCallback = async (req: any, session: any) => {
 };
 
 export const GET = handleAuth({
+  login: handleLogin({
+    authorizationParams: {
+      scope:
+        'openid profile email https://www.googleapis.com/auth/calendar.readonly',
+    },
+  }),
   callback: handleCallback({ afterCallback }),
 });
