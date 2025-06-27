@@ -6,6 +6,7 @@ import { PrismaModule } from 'prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { BookingsModule } from './bookings/bookings.module';
+import { GoogleCalendarModule } from './google/google-calendar.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { BookingsModule } from './bookings/bookings.module';
     AuthModule,
     UsersModule,
     BookingsModule,
+    GoogleCalendarModule,
   ],
   controllers: [AppController],
   providers: [AppService],

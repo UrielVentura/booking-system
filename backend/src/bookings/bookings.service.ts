@@ -2,21 +2,27 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import { Booking } from '@prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
 import { google } from 'googleapis';
+import { GoogleCalendarService } from 'src/google/google-calendar.service';
 
 @Injectable()
 export class BookingsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => GoogleCalendarService))
+    private googleCalendarService: GoogleCalendarService,
+  ) {}
 
   async create(
     auth0Id: string,
     createBookingDto: CreateBookingDto,
-    accessToken?: string,
   ): Promise<Booking> {
     // First, get the user by auth0Id
     const user = await this.prisma.user.findUnique({
@@ -47,21 +53,21 @@ export class BookingsService {
       );
     }
 
-    // if (accessToken) {
-    //   const hasGoogleConflicts = await this.checkGoogleCalendarConflicts(
-    //     accessToken,
-    //     startTime.toISOString(),
-    //     endTime.toISOString(),
-    //   );
+    // Check for Google Calendar conflicts
+    const hasGoogleConflicts =
+      await this.googleCalendarService.checkGoogleCalendarConflicts(
+        auth0Id,
+        startTime,
+        endTime,
+      );
+    if (hasGoogleConflicts) {
+      throw new BadRequestException(
+        'Time slot conflicts with your Google Calendar',
+      );
+    }
 
-    //   if (hasGoogleConflicts) {
-    //     throw new BadRequestException(
-    //       'Time slot conflicts with Google Calendar event',
-    //     );
-    //   }
-    // }
-
-    return this.prisma.booking.create({
+    // Create the booking
+    const booking = await this.prisma.booking.create({
       data: {
         title: createBookingDto.title,
         startTime,
@@ -69,6 +75,21 @@ export class BookingsService {
         userId: user.id,
       },
     });
+
+    // Try to create event in Google Calendar
+    const googleEvent = await this.googleCalendarService.createCalendarEvent(
+      auth0Id,
+      booking,
+    );
+    if (googleEvent?.id) {
+      // Update booking with Google Event ID
+      await this.prisma.booking.update({
+        where: { id: booking.id },
+        data: { googleEventId: googleEvent.id },
+      });
+    }
+
+    return booking;
   }
 
   async findAll(auth0Id: string): Promise<Booking[]> {
@@ -173,6 +194,14 @@ export class BookingsService {
 
     if (!booking) {
       throw new NotFoundException('Booking not found');
+    }
+
+    // Delete from Google Calendar if connected
+    if (booking.googleEventId) {
+      await this.googleCalendarService.deleteCalendarEvent(
+        auth0Id,
+        booking.googleEventId,
+      );
     }
 
     return this.prisma.booking.delete({

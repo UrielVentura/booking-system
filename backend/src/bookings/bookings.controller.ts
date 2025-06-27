@@ -26,17 +26,8 @@ export class BookingsController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new booking' })
-  create(
-    @Request() req,
-    @Body() createBookingDto: CreateBookingDto,
-    @Headers('authorization') authHeader: string,
-  ) {
-    const accessToken = authHeader?.replace('Bearer ', '');
-    return this.bookingsService.create(
-      req.user.userId,
-      createBookingDto,
-      accessToken,
-    );
+  create(@Request() req, @Body() createBookingDto: CreateBookingDto) {
+    return this.bookingsService.create(req.user.userId, createBookingDto);
   }
 
   @Get()

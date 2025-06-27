@@ -1,8 +1,8 @@
 'use client';
 
 import { useUser } from '@auth0/nextjs-auth0/client';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   Avatar,
@@ -20,10 +20,16 @@ import {
   Person as PersonIcon,
 } from '@mui/icons-material';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
+import { GoogleCalendarIntegration } from '@/components/gooogle-calendar/google-calendar-integration';
 
 export default function Dashboard() {
   const { user: authUser, isLoading } = useUser();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [calendarConnected, setCalendarConnected] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertType, setAlertType] = useState<'success' | 'error'>('success');
 
   const user = authUser?.user || authUser;
 
@@ -32,6 +38,31 @@ export default function Dashboard() {
       router.push('/');
     }
   }, [user, isLoading, router]);
+
+  useEffect(() => {
+    const googleConnected = searchParams.get('google_connected');
+
+    if (googleConnected === 'true') {
+      setAlertType('success');
+      setAlertMessage('Google Calendar connected successfully!');
+      setShowAlert(true);
+      setCalendarConnected(true);
+
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+
+      setTimeout(() => setShowAlert(false), 5000);
+    } else if (googleConnected === 'false') {
+      setAlertType('error');
+      setAlertMessage('Failed to connect Google Calendar. Please try again.');
+      setShowAlert(true);
+
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+
+      setTimeout(() => setShowAlert(false), 5000);
+    }
+  }, [searchParams]);
 
   if (isLoading) {
     return (
@@ -106,6 +137,16 @@ export default function Dashboard() {
             </Card>
           </Box>
 
+          {/* Google Calendar Integration */}
+          <Box
+            sx={{
+              flex: '1 1 calc(33% - 16px)',
+              minWidth: '300px',
+            }}
+          >
+            <GoogleCalendarIntegration onStatusChange={setCalendarConnected} />
+          </Box>
+
           {/* Quick Actions Card */}
           <Box
             sx={{
@@ -138,8 +179,25 @@ export default function Dashboard() {
                     >
                       View All Bookings
                     </Button>
-                    <Button variant='outlined' disabled fullWidth>
-                      Connect Google Calendar
+                    <Button
+                      variant='outlined'
+                      fullWidth
+                      component={Link}
+                      href='/bookings'
+                      sx={{
+                        backgroundColor: calendarConnected
+                          ? 'success.light'
+                          : 'warning.light',
+                        '&:hover': {
+                          backgroundColor: calendarConnected
+                            ? 'success.main'
+                            : 'warning.main',
+                        },
+                      }}
+                    >
+                      {calendarConnected
+                        ? '✓ Calendar Connected'
+                        : 'Connect Google Calendar'}
                     </Button>
                   </Box>
                 </Box>

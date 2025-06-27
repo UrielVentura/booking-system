@@ -17,6 +17,14 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { addHours, isAfter, isBefore } from 'date-fns';
 import { bookingsAPI } from '@/lib/api/bookings';
+import { BookingConflictChecker } from './booking-conflict-checker';
+
+interface BookingConflict {
+  type: 'system' | 'calendar';
+  title: string;
+  startTime: string;
+  endTime: string;
+}
 
 interface CreateBookingDialogProps {
   open: boolean;
@@ -34,7 +42,9 @@ export function CreateBookingDialog({
   const [endTime, setEndTime] = useState<Date | null>(addHours(new Date(), 1));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [conflictError, setConflictError] = useState<string | null>(null);
+
+  const [formValid, setFormValid] = useState(true);
+  const [conflicts, setConflicts] = useState<BookingConflict[]>([]);
 
   const handleSubmit = async () => {
     if (!title || !startTime || !endTime) {
@@ -54,21 +64,8 @@ export function CreateBookingDialog({
 
     setLoading(true);
     setError(null);
-    setConflictError(null);
 
     try {
-      // Check for conflicts first
-      const conflicts = await bookingsAPI.checkConflicts(
-        startTime.toISOString(),
-        endTime.toISOString()
-      );
-
-      if (conflicts.hasConflicts) {
-        setConflictError('This time slot conflicts with an existing booking');
-        setLoading(false);
-        return;
-      }
-
       // Create the booking
       await onCreate({
         title,
@@ -91,9 +88,18 @@ export function CreateBookingDialog({
     if (!loading) {
       setTitle('');
       setError(null);
-      setConflictError(null);
+      setConflicts([]);
+      setFormValid(true);
       onClose();
     }
+  };
+
+  const handleValidationChange = (
+    isValid: boolean,
+    foundConflicts: BookingConflict[]
+  ) => {
+    setFormValid(isValid);
+    setConflicts(foundConflicts);
   };
 
   return (
@@ -103,7 +109,6 @@ export function CreateBookingDialog({
         <DialogContent>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 1 }}>
             {error && <Alert severity='error'>{error}</Alert>}
-            {conflictError && <Alert severity='warning'>{conflictError}</Alert>}
 
             <TextField
               label='Title'
@@ -145,6 +150,15 @@ export function CreateBookingDialog({
                 },
               }}
             />
+
+            {title && startTime && endTime && (
+              <BookingConflictChecker
+                name={title}
+                startTime={startTime.toISOString()}
+                endTime={endTime.toISOString()}
+                onValidationChange={handleValidationChange}
+              />
+            )}
           </Box>
         </DialogContent>
         <DialogActions>
@@ -154,7 +168,14 @@ export function CreateBookingDialog({
           <Button
             onClick={handleSubmit}
             variant='contained'
-            disabled={loading || !title || !startTime || !endTime}
+            disabled={
+              loading ||
+              !title ||
+              !startTime ||
+              !endTime ||
+              !formValid ||
+              conflicts.length > 0
+            }
           >
             {loading ? <CircularProgress size={24} /> : 'Create Booking'}
           </Button>
